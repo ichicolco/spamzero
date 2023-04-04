@@ -32,25 +32,23 @@
  *
  * @type {Function[]}
  */
-
-
 // Use these helper methods in your rules
 var MessageHelper = {
-  /**
-   * @param {GmailMessage} message
-   *
-   * @return {Boolean}
-   */
-  hasImageAttachment: function(message) {
-    var attachments = message.getAttachments();
-    for (var i = 0; i < attachments.length; i++) {
-      if (attachments[i].getContentType().match(/image/)) {
-        return true;
-      }
-    }
+    /**
+     * @param {GmailMessage} message
+     *
+     * @return {Boolean}
+     */
+    hasImageAttachment: function(message) {
+        var attachments = message.getAttachments();
+        for (var i = 0; i < attachments.length; i++) {
+            if (attachments[i].getContentType().match(/image/)) {
+                return true;
+            }
+        }
 
-    return false;
-  }
+        return false;
+    }
 };
 
 var StringHelper = {
@@ -68,12 +66,14 @@ var StringHelper = {
      */
     containsGoomoji: function(string) {
         var emojiRegex = /\p{Emoji}+/gu;
-
+        if (typeof string === 'undefined') {
+          return false;
+        }
         return string.match(emojiRegex);
     }
 };
 
-/** namespace */
+/** Rules namespace */
 var Rules = (function(){
   var rules = {};
   /**
@@ -104,7 +104,7 @@ var Rules = (function(){
 
   rules.profanity = function(m, raw) {
       "Profanity filter"
-      var matchers = [/slut/i, /f.ck/i, /s.ck/i, /c.ck/i, /lady/i, /h..kup/i, /cum/i, /babe/i, /p.rn/i, /s[e3\*\.]xy?/i, /house\s?wife/i];
+      var matchers = [/slut/i, /f.ck/i, /s.ck/i, /c.ck/i, /lady/i, /h..kup/i, /cum/i, /babe/i, /p.rn/i, /s[e3\*\.]xy?/i, /house\s?wife/i, /pen.s/i];
 
       for (var i = 0; i < matchers.length; i++) {
           if (raw.headers.subject.match(matchers[i]) || raw.headers.from.match(matchers[i])) {
