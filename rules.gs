@@ -67,7 +67,7 @@ var StringHelper = {
     containsGoomoji: function(string) {
         var emojiRegex = /\p{Emoji}+/gu;
         if (typeof string === 'undefined') {
-          return false;
+            return false;
         }
         return string.match(emojiRegex);
     }
@@ -75,74 +75,127 @@ var StringHelper = {
 
 /** Rules namespace */
 var Rules = (function(){
-  var rules = {};
-  /**
-    * @param {GmailMessage} m
-    * @param {Object} raw
-    *
-    * @return {Boolean}
-    */
-  rules.goomoji = function(m, raw) {
-      "Goomoji subject"
-      return StringHelper.containsGoomoji(raw.headers.subject) || StringHelper.containsGoomoji(raw.headers.from);
-  }
+    var rules = {};
+    /**
+      * @param {GmailMessage} m
+      * @param {Object} raw
+      *
+      * @return {Boolean}
+      */
+    rules.goomoji = function(m, raw) {
+        "Goomoji subject"
+        return StringHelper.containsGoomoji(raw.headers.subject) || StringHelper.containsGoomoji(raw.headers.from);
+    }
 
-  rules.idInSubject = function(m, raw) {
-      "ID in subject"
-      var email = Session.getActiveUser().getEmail();
-      var userID = email.substr(0, email.indexOf('@'));
-      return raw.headers.subject.match(userID);
-  }
+    rules.idInSubject = function(m, raw) {
+        "ID in subject"
+        var email = Session.getActiveUser().getEmail();
+        var userID = email.substr(0, email.indexOf('@'));
+        return raw.headers.subject.match(userID);
+    }
 
-  rules.ruImage = function(m, raw) {
-      "From *.ru + image attachment"
-      var ruSender = m.getFrom().match(/\.ru>?$/);
-      var withImageAttachment = MessageHelper.hasImageAttachment(m);
+    rules.from = function(m, raw) {
+        "FROM match"
+        var matchers = [
+            /Cash Crusaders/ 
+        ];
 
-      return ruSender && withImageAttachment;
-  }
+        for (var i = 0; i < matchers.length; i++) {
+            if (raw.headers.from.match(matchers[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-  rules.profanity = function(m, raw) {
-      "Profanity filter"
-      var matchers = [/slut/i, /f.ck/i, /s.ck/i, /c.ck/i, /lady/i, /h..kup/i, /cum/i, /babe/i, /p.rn/i, /s[e3\*\.]xy?/i, /house\s?wife/i, /pen.s/i];
+    rules.subject = function(m,raw) {
+        "SUBJECT match"
+        var matchers = [
+            /sex/i
+        ];
 
-      for (var i = 0; i < matchers.length; i++) {
-          if (raw.headers.subject.match(matchers[i]) || raw.headers.from.match(matchers[i])) {
-              return true;
-          }
-      }
+        for (var i = 0; i < matchers.length; i++) {
+            if (raw.headers.subject.match(matchers[i])) {
+                return true;
+            }        
+        }
+        return false;
+    }    
 
-      return false;
-  }
+    rules.body = function(m, raw) {
+        "BODY match"
+        var matchers = [
+            /Content-Transfer-Encoding: base64/i,
+            /Content-Transfer-Encoding: Hexa/i,
+            /Content-Transfer-Encoding: quoted-printable/i,
+            /Content-Transfer-Encoding: Hexa/,
+            /height:1px/i,
+            /width:1px/i
+        ];
 
-  rules.dropbox = function(m, raw) {
-      "Has link to dropbox in body"
-      return raw.body.match(/dl\.dropboxusercontent\.com/i)
-  }
+        for (var i = 0; i < matchers.length; i++) {
+            if (raw.body.match(matchers[i])) {
+                return true;
+            }
+        }
+        return false;
+    }
 
-  rules.shortURL = function(m, raw) {
-      "Shortened url in body"
-      var matchers = [/bit\.ly/i, /tinyurl\.com/i, /goo\.gl/];
+    rules.ruImage = function(m, raw) {
+        "From *.ru + image attachment"
+        var ruSender = m.getFrom().match(/\.ru>?$/);
+        var withImageAttachment = MessageHelper.hasImageAttachment(m);
 
-      for (var i = 0; i < matchers.length; i++) {
-          if (raw.body.match(matchers[i])) {
-              return true;
-          }
-      }
+        return ruSender && withImageAttachment;
+    }
 
-      return false;
-  }
+    rules.profanity = function(m, raw) {
+        "Profanity filter"
+        var matchers = [/slut/i, /f.ck/i, /s.ck/i, /c.ck/i, /lady/i, /h..kup/i, /cum/i, /babe/i, /p.rn/i, /s[e3\*\.]xy?/i, /house\s?wife/i, /pen.s/i];
 
-  rules.partyURL = function(m, raw) {
-      "*.club, *.date, *.top, etc."
-      return m.getFrom().match(/(\.club|\.date|\.top|\.xyz|\.trade|\.party)>?$/i) ||
-            raw.body.match(/(https?|www).+(\.club|\.date|\.top|\.xyz|\.trade|\.party)/i);
-  }
+        for (var i = 0; i < matchers.length; i++) {
+            if (raw.headers.subject.match(matchers[i]) || raw.headers.from.match(matchers[i])) {
+                return true;
+            }
+        }
 
-  rules.phpConfidential = function(m, raw) {
-      "URL to a .php site & 'confidential' / 'broken' words in body"
-      return raw.body.match(/(https?|www).+\.php/i) && raw.body.match(/(confidential|broken)/i);
-  }
+        return false;
+    }
 
-  return rules;
+    rules.dropbox = function(m, raw) {
+        "Has link to dropbox in body"
+        return raw.body.match(/dl\.dropboxusercontent\.com/i)
+    }
+
+    rules.shortURL = function(m, raw) {
+        "Shortened url in body"
+        var matchers = [/bit\.ly/i, /tinyurl\.com/i, /goo\.gl/];
+
+        for (var i = 0; i < matchers.length; i++) {
+            if (raw.body.match(matchers[i])) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    rules.partyURL = function(m, raw) {
+        "*.club, *.date, *.top, etc."
+        return m.getFrom().match(/(\.club|\.date|\.top|\.xyz|\.trade|\.party)>?$/i) ||
+               raw.body.match(/(https?|www).+(\.club|\.date|\.top|\.xyz|\.trade|\.party)/i);
+    }
+
+    rules.phpConfidential = function(m, raw) {
+        "URL to a .php site & 'confidential' / 'broken' words in body"
+        return raw.body.match(/(https?|www).+\.php/i) && raw.body.match(/(confidential|broken)/i);
+    }
+
+    rules.undisclosed-recipients = function(m, raw) {
+        "To: undisclosed-recipients:;"
+        var undisclosed = m.getTo().match(/undisclosed-recipients:;/);
+        return undisclosed;
+    }
+
+    return rules;
 })();
