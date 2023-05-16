@@ -115,6 +115,10 @@ For more information take a look at the source code.
 
 As this script is executed on server side, you will need to tell it to trigger certain times of the day. Click on the clock icon in the toolbar and select an execution strategy. Start with running it once an hour and see how it goes.
 
+## Known errors
+
+Occasionally a message will arrive that causes the script to fail. The last error I encounted was due to a message having an empty To: field in the header.  I deleted the message manually.  Some day I'll see if I can modify the script to ignore/tag/delete messages with an empty To: field.
+
 ## Motivation
 
 The motivation behind creating this script was to help me clean up my spam folder, however you could use it for any other purpose. If you want to operate on different messages just change the first line from
