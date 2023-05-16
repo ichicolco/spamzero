@@ -191,7 +191,7 @@ var Rules = (function(){
         return raw.body.match(/(https?|www).+\.php/i) && raw.body.match(/(confidential|broken)/i);
     }
 
-    rules.undisclosed-recipients = function(m, raw) {
+    rules.undisclosedrecipients = function(m, raw) {
         "To: undisclosed-recipients:;"
         var undisclosed = m.getTo().match(/undisclosed-recipients:;/);
         return undisclosed;
