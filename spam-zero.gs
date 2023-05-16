@@ -22,12 +22,12 @@ var threads = GmailApp.search('in:spam label:unread');
  * Possible values are: READ, MOVE_TO_TRASH, LABEL(name).
  * You can also use multiple actions ["READ", "LABEL(Some label)"].
  */
-var actions = ["READ"];
+var actions = ["READ", "LABEL(zero)"];
 
 /**
   Array of rules provided by rules.gs add rules as needed.
  */
-var rules = [ Rules.goomoji, Rules.idInSubject ];
+var rules = [ Rules.goomoji, Rules.idInSubject, Rules.from, Rules.subject, Rules.body ];
 
 // Debug mode (will log events, use the log viewer [View / Show logs] to view them)
 var isDebug = true;
