@@ -13,6 +13,7 @@
  *
  * @see https://developers.google.com/apps-script/reference/gmail/
  */
+//var threads = GmailApp.getSpamThreads(0, 1);
 var threads = GmailApp.search('in:spam label:unread');
 
 /**
@@ -26,7 +27,7 @@ var actions = ["READ"];
 /**
   Array of rules provided by rules.gs add rules as needed.
  */
-var rules = [ goomoji, idInSubject ];
+var rules = [ Rules.goomoji, Rules.idInSubject ];
 
 // Debug mode (will log events, use the log viewer [View / Show logs] to view them)
 var isDebug = true;
